@@ -183,7 +183,7 @@
             this.ObjectType.Location = new System.Drawing.Point(326, 15);
             this.ObjectType.Name = "ObjectType";
             this.ObjectType.Size = new System.Drawing.Size(235, 22);
-            this.ObjectType.TabIndex = 29;
+            this.ObjectType.TabIndex = 0;
             // 
             // label1
             // 

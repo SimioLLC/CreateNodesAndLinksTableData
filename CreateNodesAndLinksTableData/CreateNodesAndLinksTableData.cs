@@ -81,7 +81,7 @@ namespace CreateNodesAndLinksTableData
                     s = tbl.Columns.AddStringColumn("ObjectPropertyName", "Filter");
                     s = tbl.Columns.AddStringColumn("ObjectPropertyValue", "Create1");
                     s = tbl.Columns.AddStringColumn("NodeType", "BasicNode");
-                    s = tbl.Columns.AddStringColumn("LinkType", "Path");
+                    s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
                     var l = tbl.Columns.AddListReferenceColumn("Direction");
                     l.ListName = "CreateNodesAndLinksDirection";
                     l.DefaultString = "LeftToRight";
@@ -112,8 +112,11 @@ namespace CreateNodesAndLinksTableData
                     t.DefaultString = "Links";
                     s = tbl.Columns.AddStringColumn("LinkColumnName", "Link");
                     s = tbl.Columns.AddStringColumn("LinkTypeColumnName", "Type");
-                    s = tbl.Columns.AddStringColumn("StartingNode", String.Empty);
-                    s = tbl.Columns.AddStringColumn("EndingNode", String.Empty);
+                    s = tbl.Columns.AddStringColumn("StartingNodeColumnName", "StartingNode");
+                    s = tbl.Columns.AddStringColumn("EndingNodeColumnName", "EndingNode");
+                    s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
+                    s = tbl.Columns.AddStringColumn("LinkPropertyName", "Filter");
+                    s = tbl.Columns.AddStringColumn("LinkPropertyValue", "Create1");
                     var row = tbl.Rows.Create();
                     MessageBox.Show("AddNodesAndLinksToTables Table Created");
                 }
@@ -262,7 +265,7 @@ namespace CreateNodesAndLinksTableData
                             {
                                 var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)outputNode && r.End == (INodeObject)node).ToList();
                                 if (filterListOfLinks.Count == 0)
-                                    context.ActiveModel.Facility.IntelligentObjects.CreateLink("Path", (INodeObject)outputNode, (INodeObject)node, null);
+                                    context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
                             }
 
                             prevNode = node;
@@ -352,62 +355,92 @@ namespace CreateNodesAndLinksTableData
                 var row = tbl.Rows[0];
                 f.NodesTable.Text = row.Properties["NodesTable"].Value;
                 f.NodeColumnName.Text = row.Properties["NodeColumnName"].Value;
+                f.NodeTypeColumnName.Text = row.Properties["NodeTypeColumnName"].Value;
+                f.XLocationColumnName.Text = row.Properties["XLocationColumnName"].Value;
+                f.YLocationColumnName.Text = row.Properties["YLocationColumnName"].Value;
+                f.ZLocationColumnName.Text = row.Properties["ZLocationColumnName"].Value;
                 f.LinksTable.Text = row.Properties["LinksTable"].Value;
                 f.LinkColumnName.Text = row.Properties["LinkColumnName"].Value;
+                f.LinkTypeColumnName.Text = row.Properties["LinkTypeColumnName"].Value;
+                f.StartingNodeColumnName.Text = row.Properties["StartingNodeColumnName"].Value;
+                f.EndingNodeColumnName.Text = row.Properties["EndingNodeColumnName"].Value;
+                f.LinkType.Text = row.Properties["LinkType"].Value;
+                f.LinkPropertyName.Text = row.Properties["LinkPropertyName"].Value;
+                f.LinkPropertyValue.Text = row.Properties["LinkPropertyValue"].Value;
+
                 f.ShowDialog();
 
                 if (f.OkButtonSelected == true)
                 {
                     context.ActiveModel.BulkUpdate(model =>
                     {
-                        //var filterListOfObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.NodesTable.Text);
-                        //var filterListOfObjects = filterListOfObjectsByType.Where(r => r.Properties[f.NodeColumnName.Text].Value == f.LinksTable.Text).ToList();
-                        //var sortedListOfObjects = new List<IIntelligentObject>();
-                        //if (f.Direction.Text == "LeftToRight") sortedListOfObjects = filterListOfObjects.OrderBy(z => z.Location.Z).ThenBy(y => y.Location.Y).ThenBy(x => x.Location.X).ToList();
-                        //else sortedListOfObjects = filterListOfObjects.OrderBy(x => x.Location.X).ThenBy(y => y.Location.Y).ThenBy(z => z.Location.Z).ToList();
+                        var filterListOfLinksByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text);
+                        var filterListOfLinks = filterListOfLinksByType.Where(r => r.Properties[f.LinkPropertyName.Text].Value == f.LinkPropertyValue.Text).ToList();
+                        var nodesTable = context.ActiveModel.Tables[f.NodesTable.Text];
+                        var linksTable = context.ActiveModel.Tables[f.LinksTable.Text];
 
-                        //IIntelligentObject prevNode = null;
-                        //IIntelligentObject node = null;
-                        //double useExistingNodeOffset = Convert.ToDouble(f.UseExistingNodeOffset.Text);
-                        //double nodeOffet = Convert.ToDouble(f.NodeOffset.Text);
+                        foreach (ILinkObject linkObj in filterListOfLinks)
+                        {
+                            // if not input or output node
+                            if (linkObj.Begin.ObjectName.StartsWith("Input@") == false && linkObj.Begin.ObjectName.StartsWith("Output@") == false)
+                            {
+                                var beginNode = nodesTable.Rows.OfType<IRow>().Where(r => r.Properties[f.NodeColumnName.Text].Value == linkObj.Begin.ObjectName).ToList();
+                                if (beginNode.Count == 0)
+                                {
+                                    // remove node...it might already have been removed
+                                    try
+                                    {
+                                        context.ActiveModel.Facility.IntelligentObjects.Remove(linkObj.Begin);
+                                    }
+                                    catch { }
+                                    var beginRow = nodesTable.Rows.Create();
+                                    beginRow.Properties[f.NodeColumnName.Text].Value = linkObj.Begin.ObjectName;
+                                    beginRow.Properties[f.NodeTypeColumnName.Text].Value = linkObj.Begin.TypeName;
+                                    beginRow.Properties[f.XLocationColumnName.Text].Value = linkObj.Begin.Location.X.ToString();
+                                    beginRow.Properties[f.YLocationColumnName.Text].Value = linkObj.Begin.Location.Y.ToString();
+                                    beginRow.Properties[f.ZLocationColumnName.Text].Value = linkObj.Begin.Location.Z.ToString();
+                                }
+                            }
 
-                        //foreach (IIntelligentObject intellObj in sortedListOfObjects)
-                        //{
-                        //    //find angle using Yaw
-                        //    double angle = intellObj.Yaw * Math.PI / 180;
+                            // if not input or output node
+                            if (linkObj.End.ObjectName.StartsWith("Input@") == false && linkObj.End.ObjectName.StartsWith("Output@") == false)
+                            {
+                                var endNode = nodesTable.Rows.OfType<IRow>().Where(r => r.Properties[f.NodeColumnName.Text].Value == linkObj.End.ObjectName).ToList();
+                                if (endNode.Count == 0)
+                                {
+                                    // remove node...it might already have been removed
+                                    try
+                                    {
+                                        context.ActiveModel.Facility.IntelligentObjects.Remove(linkObj.End);
+                                    }
+                                    catch { }
+                                    var endRow = nodesTable.Rows.Create();
+                                    endRow.Properties[f.NodeColumnName.Text].Value = linkObj.End.ObjectName;
+                                    endRow.Properties[f.NodeTypeColumnName.Text].Value = linkObj.End.TypeName;
+                                    endRow.Properties[f.XLocationColumnName.Text].Value = linkObj.End.Location.X.ToString();
+                                    endRow.Properties[f.YLocationColumnName.Text].Value = linkObj.End.Location.Y.ToString();
+                                    endRow.Properties[f.ZLocationColumnName.Text].Value = linkObj.End.Location.Z.ToString();
+                                }
+                            }
 
-                        //    // determine new facility location for node
-                        //    var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * nodeOffet));
-
-                        //    // check to see if node already exists
-                        //    var filterListOfNodesByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == "BasicNode");
-                        //    var filterListOfNodes = filterListOfNodesByType.Where(r => (r.Location.X - useExistingNodeOffset) <= loc.X && (r.Location.X + useExistingNodeOffset) >= loc.X && (r.Location.Z - useExistingNodeOffset) <= loc.Z && (r.Location.Z + useExistingNodeOffset) >= loc.Z).ToList();
-
-                        //    // if node already exist, use node, if not create node and links
-                        //    if (filterListOfNodes.Count > 0) node = filterListOfNodes[0];
-                        //    else
-                        //    {
-                        //        node = context.ActiveModel.Facility.IntelligentObjects.CreateObject("BasicNode", loc);
-                        //        // Add Links
-                        //        if (prevNode != null && node.Location.X > prevNode.Location.X)
-                        //        {
-                        //            context.ActiveModel.Facility.IntelligentObjects.CreateLink("Path", (INodeObject)prevNode, (INodeObject)node, null);
-                        //        }
-                        //    }
-
-
-                        //    var inputNode = context.ActiveModel.Facility.IntelligentObjects["Input@" + intellObj.ObjectName];
-                        //    if (inputNode != null) context.ActiveModel.Facility.IntelligentObjects.CreateLink("Path", (INodeObject)node, (INodeObject)inputNode, null);
-
-                        //    var outputNode = context.ActiveModel.Facility.IntelligentObjects["Output@" + intellObj.ObjectName];
-                        //    if (outputNode != null) context.ActiveModel.Facility.IntelligentObjects.CreateLink("Path", (INodeObject)outputNode, (INodeObject)node, null);
-
-
-
-                        //    prevNode = node;
-                        //}
-
-                        MessageBox.Show("Create Links Completed", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                            var link = linksTable.Rows.OfType<IRow>().Where(r => r.Properties[f.LinkColumnName.Text].Value == linkObj.ObjectName).ToList();
+                            if (link.Count == 0)
+                            {
+                                // remove link...it might already have been removed
+                                try
+                                {
+                                    context.ActiveModel.Facility.IntelligentObjects.Remove(linkObj);
+                                }
+                                catch { }
+                                var endRow = linksTable.Rows.Create();
+                                endRow.Properties[f.LinkColumnName.Text].Value = linkObj.ObjectName;
+                                endRow.Properties[f.LinkTypeColumnName.Text].Value = linkObj.TypeName;
+                                endRow.Properties[f.StartingNodeColumnName.Text].Value = linkObj.Begin.ObjectName;
+                                endRow.Properties[f.EndingNodeColumnName.Text].Value = linkObj.End.ObjectName;
+                            }                            
+                        }                         
+                                                
+                        MessageBox.Show("Node And Links Added To Tables Completed", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 
                     });
                 }

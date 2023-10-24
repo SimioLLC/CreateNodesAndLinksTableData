@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Notes.Text" xml:space="preserve">
-    <value>Note:   The initial values for this add-in table come from the first row of the CreateNodesAndLinks table.  If you want to set defaults for this add-in, update the values in the first row of the table.
+    <value>Note:   The initial values for this add-in table come from the first row of the AddNodesAndLinksToTables table.  If you want to set defaults for this add-in, update the values in the first row of the table.
 </value>
   </data>
 </root>
