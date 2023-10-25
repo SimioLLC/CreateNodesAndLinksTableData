@@ -117,6 +117,7 @@ namespace CreateNodesAndLinksTableData
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
                     s = tbl.Columns.AddStringColumn("LinkPropertyName", "Filter");
                     s = tbl.Columns.AddStringColumn("LinkPropertyValue", "Create1");
+                    s = tbl.Columns.AddBooleanColumn("TablesUseAutoCreate", true);
                     var row = tbl.Rows.Create();
                     MessageBox.Show("AddNodesAndLinksToTables Table Created");
                 }
@@ -367,6 +368,7 @@ namespace CreateNodesAndLinksTableData
                 f.LinkType.Text = row.Properties["LinkType"].Value;
                 f.LinkPropertyName.Text = row.Properties["LinkPropertyName"].Value;
                 f.LinkPropertyValue.Text = row.Properties["LinkPropertyValue"].Value;
+                f.TablesUseAutoCreate.Checked = Convert.ToBoolean(row.Properties["TablesUseAutoCreate"].Value);
 
                 f.ShowDialog();
 
@@ -387,12 +389,15 @@ namespace CreateNodesAndLinksTableData
                                 var beginNode = nodesTable.Rows.OfType<IRow>().Where(r => r.Properties[f.NodeColumnName.Text].Value == linkObj.Begin.ObjectName).ToList();
                                 if (beginNode.Count == 0)
                                 {
-                                    // remove node...it might already have been removed
-                                    try
+                                    if (f.TablesUseAutoCreate.Checked)
                                     {
-                                        context.ActiveModel.Facility.IntelligentObjects.Remove(linkObj.Begin);
+                                        // remove node...it might already have been removed
+                                        try
+                                        {
+                                            context.ActiveModel.Facility.IntelligentObjects.Remove(linkObj.Begin);
+                                        }
+                                        catch { }
                                     }
-                                    catch { }
                                     var beginRow = nodesTable.Rows.Create();
                                     beginRow.Properties[f.NodeColumnName.Text].Value = linkObj.Begin.ObjectName;
                                     beginRow.Properties[f.NodeTypeColumnName.Text].Value = linkObj.Begin.TypeName;
@@ -408,12 +413,15 @@ namespace CreateNodesAndLinksTableData
                                 var endNode = nodesTable.Rows.OfType<IRow>().Where(r => r.Properties[f.NodeColumnName.Text].Value == linkObj.End.ObjectName).ToList();
                                 if (endNode.Count == 0)
                                 {
-                                    // remove node...it might already have been removed
-                                    try
+                                    if (f.TablesUseAutoCreate.Checked)
                                     {
-                                        context.ActiveModel.Facility.IntelligentObjects.Remove(linkObj.End);
+                                        // remove node...it might already have been removed
+                                        try
+                                        {
+                                            context.ActiveModel.Facility.IntelligentObjects.Remove(linkObj.End);
+                                        }
+                                        catch { }
                                     }
-                                    catch { }
                                     var endRow = nodesTable.Rows.Create();
                                     endRow.Properties[f.NodeColumnName.Text].Value = linkObj.End.ObjectName;
                                     endRow.Properties[f.NodeTypeColumnName.Text].Value = linkObj.End.TypeName;

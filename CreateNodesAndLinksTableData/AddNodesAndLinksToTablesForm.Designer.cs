@@ -60,6 +60,7 @@
             this.label13 = new System.Windows.Forms.Label();
             this.LinkType = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
+            this.TablesUseAutoCreate = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // NodesTable
@@ -322,12 +323,24 @@
             this.label14.TabIndex = 57;
             this.label14.Text = "Link Type:";
             // 
+            // TablesUseAutoCreate
+            // 
+            this.TablesUseAutoCreate.AutoSize = true;
+            this.TablesUseAutoCreate.Location = new System.Drawing.Point(37, 735);
+            this.TablesUseAutoCreate.Name = "TablesUseAutoCreate";
+            this.TablesUseAutoCreate.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.TablesUseAutoCreate.Size = new System.Drawing.Size(323, 20);
+            this.TablesUseAutoCreate.TabIndex = 63;
+            this.TablesUseAutoCreate.Text = "                                                 Tables Use Auto Create:";
+            this.TablesUseAutoCreate.UseVisualStyleBackColor = true;
+            // 
             // AddNodesAndLinksToTablesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(994, 772);
+            this.ClientSize = new System.Drawing.Size(994, 818);
             this.ControlBox = false;
+            this.Controls.Add(this.TablesUseAutoCreate);
             this.Controls.Add(this.LinkPropertyName);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.LinkPropertyValue);
@@ -400,5 +413,6 @@
         private System.Windows.Forms.Label label13;
         internal System.Windows.Forms.TextBox LinkType;
         private System.Windows.Forms.Label label14;
+        internal System.Windows.Forms.CheckBox TablesUseAutoCreate;
     }
 }
