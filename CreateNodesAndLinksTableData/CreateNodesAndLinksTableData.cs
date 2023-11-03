@@ -26,7 +26,7 @@ namespace CreateNodesAndLinksTableData
         /// </summary>
         public string Name
         {
-            get { return "Create Tables"; }
+            get { return "Create Tables and Lists"; }
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace CreateNodesAndLinksTableData
         /// </summary>
         public string Description
         {
-            get { return "Create Tables."; }
+            get { return "Create Tables and Lists."; }
         }
 
         /// <summary>
@@ -53,7 +53,23 @@ namespace CreateNodesAndLinksTableData
             // This example code places some new objects from the Standard Library into the active model of the project.
             if (context.ActiveModel != null)
             {
-                // Add Routing Type List
+                // Add Node Locations List
+                var nodeLocationsList = context.ActiveModel.NamedLists["CreateNodesAndLinksNodeLocations"];
+                if (nodeLocationsList != null)
+                {
+                    MessageBox.Show("CreateNodesAndLinksNodeLocations List Already Exists", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    nodeLocationsList = context.ActiveModel.NamedLists.AddStringList("CreateNodesAndLinksNodeLocations");
+                    var firstRow = nodeLocationsList.Rows.Create();
+                    firstRow.Properties[0].Value = "BothBelowObject";
+                    var secondRow = nodeLocationsList.Rows.Create();
+                    secondRow.Properties[0].Value = "InputLeftOutputRight";
+                    MessageBox.Show("CreateNodesAndLinksNodeLocations List Created");
+                }
+
+                // Add Direction List
                 var directionList = context.ActiveModel.NamedLists["CreateNodesAndLinksDirection"];
                 if (directionList != null)
                 {
@@ -67,8 +83,9 @@ namespace CreateNodesAndLinksTableData
                     var secondRow = directionList.Rows.Create();
                     secondRow.Properties[0].Value = "TopToBottom";
                     MessageBox.Show("CreateNodesAndLinksDirection List Created");
-                }                
+                }
 
+                // Add CreateNodesAndLinks Table
                 var tbl = context.ActiveModel.Tables["CreateNodesAndLinks"];
                 if (tbl != null)
                 {
@@ -80,19 +97,23 @@ namespace CreateNodesAndLinksTableData
                     var s = tbl.Columns.AddStringColumn("ObjectType", "Rack");
                     s = tbl.Columns.AddStringColumn("ObjectPropertyName", "Filter");
                     s = tbl.Columns.AddStringColumn("ObjectPropertyValue", "Create1");
-                    s = tbl.Columns.AddStringColumn("NodeType", "BasicNode");
+                    s = tbl.Columns.AddStringColumn("NodeType", "RackNode");
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
-                    var l = tbl.Columns.AddListReferenceColumn("Direction");
-                    l.ListName = "CreateNodesAndLinksDirection";
-                    l.DefaultString = "LeftToRight";
                     var r = tbl.Columns.AddRealColumn("NodeOffset", 1.5);
                     (r as IUnitizedTableColumn).UnitType = SimioUnitType.Length;
                     r = tbl.Columns.AddRealColumn("UseExistingNodeOffset", 0.5);
                     (r as IUnitizedTableColumn).UnitType = SimioUnitType.Length;
+                    var l = tbl.Columns.AddListReferenceColumn("NodeLocations");
+                    l.ListName = "CreateNodesAndLinksNodeLocations";
+                    l.DefaultString = "BothBelowObject";
+                    l = tbl.Columns.AddListReferenceColumn("Direction");
+                    l.ListName = "CreateNodesAndLinksDirection";
+                    l.DefaultString = "LeftToRight";
                     var row = tbl.Rows.Create();
                     MessageBox.Show("CreateNodesAndLinksTableData Table Created");
                 }
 
+                // Add AddNodesAndLinksToTables Table
                 tbl = context.ActiveModel.Tables["AddNodesAndLinksToTables"];
                 if (tbl != null)
                 {
@@ -208,6 +229,7 @@ namespace CreateNodesAndLinksTableData
                 f.ObjectPropertyValue.Text = row.Properties["ObjectPropertyValue"].Value;
                 f.NodeType.Text = row.Properties["NodeType"].Value;
                 f.LinkType.Text = row.Properties["LinkType"].Value;
+                f.NodeLocations.Text = row.Properties["NodeLocations"].Value;
                 f.Direction.Text = row.Properties["Direction"].Value;
                 f.ShowDialog();
 
@@ -221,55 +243,86 @@ namespace CreateNodesAndLinksTableData
                         if (f.Direction.Text == "LeftToRight") sortedListOfObjects = filterListOfObjects.OrderBy(z => z.Location.Z).ThenBy(y => y.Location.Y).ThenBy(x => x.Location.X).ToList();
                         else sortedListOfObjects = filterListOfObjects.OrderBy(x => x.Location.X).ThenBy(y => y.Location.Y).ThenBy(z => z.Location.Z).ToList();
 
-                        IIntelligentObject prevNode = null;
+                        IIntelligentObject prevNode0 = null;
+                        IIntelligentObject prevNode1 = null;
                         IIntelligentObject node = null;
                         double useExistingNodeOffset = Convert.ToDouble(f.UseExistingNodeOffset.Text);
                         double nodeOffet = Convert.ToDouble(f.NodeOffset.Text);
 
                         foreach (IIntelligentObject intellObj in sortedListOfObjects)
                         {
-                            //find angle using Yaw
-                            double angle = intellObj.Yaw * Math.PI / 180;
-
-                            // determine new facility location for node
-                            var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * nodeOffet));
-
-                            // check to see if node already exists
-                            var filterListOfNodesByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.NodeType.Text);
-                            var filterListOfNodes = filterListOfNodesByType.Where(r => (r.Location.X - useExistingNodeOffset) <= loc.X && (r.Location.X + useExistingNodeOffset) >= loc.X && (r.Location.Z - useExistingNodeOffset) <= loc.Z && (r.Location.Z + useExistingNodeOffset) >= loc.Z).ToList();
-
-                            // if node already exist, use node, if not create node and links
-                            if (filterListOfNodes.Count > 0) node = filterListOfNodes[0];
-                            else
+                            int loopCount = 1;
+                            bool InputLeftOuputRight = false;
+                            if (f.NodeLocations.Text == "InputLeftOutputRight")
                             {
-                                node = context.ActiveModel.Facility.IntelligentObjects.CreateObject(f.NodeType.Text, loc);
-                                // Add Links
-                                if ( prevNode != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode.Location.Z)))
+                                InputLeftOuputRight = true;
+                                loopCount++;
+                            }
+
+                            // InputLeftOuputRight == Fase...Only one loop...InputLeftOuputRight == True...First loop for input and secons loop for output
+                            for (int currentLoop = 0; currentLoop < loopCount; currentLoop++)
+                            {
+                                //find angle using Yaw
+                                double angle;
+
+                                if (InputLeftOuputRight == false) angle = intellObj.Yaw * Math.PI / 180;
+                                else if (currentLoop== 0) angle = (intellObj.Yaw + 90) * Math.PI / 180;
+                                else angle = (intellObj.Yaw - 90) * Math.PI / 180;
+
+                                // determine new facility location for node
+                                var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * nodeOffet));
+
+                                // check to see if node already exists
+                                var filterListOfNodesByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.NodeType.Text);
+                                var filterListOfNodes = filterListOfNodesByType.Where(r => (r.Location.X - useExistingNodeOffset) <= loc.X && (r.Location.X + useExistingNodeOffset) >= loc.X && (r.Location.Z - useExistingNodeOffset) <= loc.Z && (r.Location.Z + useExistingNodeOffset) >= loc.Z).ToList();
+
+                                // if node already exist, use node, if not create node and links
+                                if (filterListOfNodes.Count > 0) node = filterListOfNodes[0];
+                                else
                                 {
-                                    context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode, (INodeObject)node, null);
+                                    node = context.ActiveModel.Facility.IntelligentObjects.CreateObject(f.NodeType.Text, loc);
+                                    // Add Links
+                                    if (currentLoop == 0 && prevNode0 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode0.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode0.Location.Z)))
+                                    {
+                                        context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode0, (INodeObject)node, null);
+                                    }
+                                    if (currentLoop == 1 && prevNode1 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode1.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode1.Location.Z)))
+                                    {
+                                        context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode1, (INodeObject)node, null);
+                                    }
                                 }
+
+                                var filterListOfLinkObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text).ToList();
+                                var filterListOfLinksByType = filterListOfLinkObjectsByType.Cast<ILinkObject>().ToList();
+                                
+                                // For InputNode 
+                                if (InputLeftOuputRight == false || currentLoop == 0)
+                                {
+                                    var inputNode = context.ActiveModel.Facility.IntelligentObjects["Input@" + intellObj.ObjectName];
+                                    if (inputNode != null)
+                                    {
+                                        var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)node && r.End == (INodeObject)inputNode).ToList();
+                                        if (filterListOfLinks.Count == 0)
+                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)node, (INodeObject)inputNode, null);
+                                    }
+                                }
+
+                                // For OutputNode 
+                                if (InputLeftOuputRight == false || currentLoop == 1)
+                                {
+                                    var outputNode = context.ActiveModel.Facility.IntelligentObjects["Output@" + intellObj.ObjectName];
+                                    if (outputNode != null)
+                                    {
+                                        var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)outputNode && r.End == (INodeObject)node).ToList();
+                                        if (filterListOfLinks.Count == 0)
+                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
+                                    }
+                                }
+
+                                if (currentLoop == 0) prevNode0 = node;
+                                else prevNode1 = node;
+
                             }
-
-                            var filterListOfLinkObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text).ToList();
-                            var filterListOfLinksByType = filterListOfLinkObjectsByType.Cast<ILinkObject>().ToList();
-
-                            var inputNode = context.ActiveModel.Facility.IntelligentObjects["Input@" + intellObj.ObjectName];
-                            if (inputNode != null)
-                            {
-                                var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)node && r.End == (INodeObject)inputNode).ToList();
-                                if (filterListOfLinks.Count == 0) 
-                                    context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)node, (INodeObject)inputNode, null);
-                            }
-
-                            var outputNode = context.ActiveModel.Facility.IntelligentObjects["Output@" + intellObj.ObjectName];
-                            if (outputNode != null)
-                            {
-                                var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)outputNode && r.End == (INodeObject)node).ToList();
-                                if (filterListOfLinks.Count == 0)
-                                    context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
-                            }
-
-                            prevNode = node;
                         }
 
                         MessageBox.Show("Create Links Completed", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);

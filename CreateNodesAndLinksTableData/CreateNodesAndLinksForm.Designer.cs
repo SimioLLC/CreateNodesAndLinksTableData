@@ -48,6 +48,8 @@
             this.LinkType = new System.Windows.Forms.TextBox();
             this.NodeType = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.NodeLocations = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // cancelButton
@@ -78,14 +80,14 @@
             this.Direction.Items.AddRange(new object[] {
             "LeftToRight",
             "TopToBottom"});
-            this.Direction.Location = new System.Drawing.Point(326, 345);
+            this.Direction.Location = new System.Drawing.Point(326, 393);
             this.Direction.Name = "Direction";
             this.Direction.Size = new System.Drawing.Size(235, 24);
             this.Direction.TabIndex = 11;
             // 
             // NodeOffset
             // 
-            this.NodeOffset.Location = new System.Drawing.Point(326, 252);
+            this.NodeOffset.Location = new System.Drawing.Point(326, 250);
             this.NodeOffset.Name = "NodeOffset";
             this.NodeOffset.Size = new System.Drawing.Size(235, 22);
             this.NodeOffset.TabIndex = 15;
@@ -93,7 +95,7 @@
             // 
             // UseExistingNodeOffset
             // 
-            this.UseExistingNodeOffset.Location = new System.Drawing.Point(326, 300);
+            this.UseExistingNodeOffset.Location = new System.Drawing.Point(326, 297);
             this.UseExistingNodeOffset.Name = "UseExistingNodeOffset";
             this.UseExistingNodeOffset.Size = new System.Drawing.Size(235, 22);
             this.UseExistingNodeOffset.TabIndex = 16;
@@ -102,7 +104,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(28, 258);
+            this.label5.Location = new System.Drawing.Point(12, 258);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(81, 16);
             this.label5.TabIndex = 20;
@@ -111,7 +113,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(28, 306);
+            this.label6.Location = new System.Drawing.Point(12, 303);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(158, 16);
             this.label6.TabIndex = 21;
@@ -120,7 +122,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(28, 69);
+            this.label7.Location = new System.Drawing.Point(12, 69);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(143, 16);
             this.label7.TabIndex = 22;
@@ -128,14 +130,14 @@
             // 
             // ObjectPropertyName
             // 
-            this.ObjectPropertyName.Location = new System.Drawing.Point(326, 63);
+            this.ObjectPropertyName.Location = new System.Drawing.Point(326, 62);
             this.ObjectPropertyName.Name = "ObjectPropertyName";
             this.ObjectPropertyName.Size = new System.Drawing.Size(235, 22);
             this.ObjectPropertyName.TabIndex = 23;
             // 
             // ObjectPropertyValue
             // 
-            this.ObjectPropertyValue.Location = new System.Drawing.Point(326, 111);
+            this.ObjectPropertyValue.Location = new System.Drawing.Point(326, 109);
             this.ObjectPropertyValue.Name = "ObjectPropertyValue";
             this.ObjectPropertyValue.Size = new System.Drawing.Size(235, 22);
             this.ObjectPropertyValue.TabIndex = 24;
@@ -154,7 +156,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(30, 117);
+            this.label8.Location = new System.Drawing.Point(12, 117);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(141, 16);
             this.label8.TabIndex = 26;
@@ -163,7 +165,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(30, 353);
+            this.label9.Location = new System.Drawing.Point(12, 393);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(63, 16);
             this.label9.TabIndex = 27;
@@ -172,7 +174,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(28, 21);
+            this.label10.Location = new System.Drawing.Point(12, 21);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(84, 16);
             this.label10.TabIndex = 28;
@@ -188,7 +190,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(30, 210);
+            this.label1.Location = new System.Drawing.Point(12, 210);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(69, 16);
             this.label1.TabIndex = 33;
@@ -196,7 +198,7 @@
             // 
             // LinkType
             // 
-            this.LinkType.Location = new System.Drawing.Point(326, 204);
+            this.LinkType.Location = new System.Drawing.Point(326, 203);
             this.LinkType.Name = "LinkType";
             this.LinkType.Size = new System.Drawing.Size(235, 22);
             this.LinkType.TabIndex = 32;
@@ -211,11 +213,34 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(28, 162);
+            this.label2.Location = new System.Drawing.Point(12, 162);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(79, 16);
             this.label2.TabIndex = 30;
             this.label2.Text = "Node Type:";
+            // 
+            // NodeLocations
+            // 
+            this.NodeLocations.AutoCompleteCustomSource.AddRange(new string[] {
+            "BothBelowObject",
+            "InputLeftOutputRight"});
+            this.NodeLocations.FormattingEnabled = true;
+            this.NodeLocations.Items.AddRange(new object[] {
+            "BothBelowObject",
+            "InputLeftOutputRight"});
+            this.NodeLocations.Location = new System.Drawing.Point(326, 344);
+            this.NodeLocations.Name = "NodeLocations";
+            this.NodeLocations.Size = new System.Drawing.Size(235, 24);
+            this.NodeLocations.TabIndex = 34;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 344);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(105, 16);
+            this.label3.TabIndex = 35;
+            this.label3.Text = "Node Locations:";
             // 
             // CreateNodesAndLinksForm
             // 
@@ -223,6 +248,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1079, 483);
             this.ControlBox = false;
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.NodeLocations);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.LinkType);
             this.Controls.Add(this.NodeType);
@@ -271,5 +298,7 @@
         internal System.Windows.Forms.TextBox LinkType;
         internal System.Windows.Forms.TextBox NodeType;
         private System.Windows.Forms.Label label2;
+        internal System.Windows.Forms.ComboBox NodeLocations;
+        private System.Windows.Forms.Label label3;
     }
 }
