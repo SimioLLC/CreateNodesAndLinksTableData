@@ -96,7 +96,7 @@ namespace CreateNodesAndLinksTableData
                     tbl = context.ActiveModel.Tables.Create("CreateNodesAndLinks");
                     var s = tbl.Columns.AddStringColumn("ObjectType", "Rack");
                     s = tbl.Columns.AddStringColumn("ObjectPropertyName", "Filter");
-                    s = tbl.Columns.AddStringColumn("ObjectPropertyValue", "Create1");
+                    s = tbl.Columns.AddStringColumn("ObjectPropertyValue", "");
                     s = tbl.Columns.AddStringColumn("NodeType", "RackNode");
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
                     var r = tbl.Columns.AddRealColumn("NodeOffset", 1.5);
@@ -137,7 +137,7 @@ namespace CreateNodesAndLinksTableData
                     s = tbl.Columns.AddStringColumn("EndingNodeColumnName", "EndingNode");
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
                     s = tbl.Columns.AddStringColumn("LinkPropertyName", "Filter");
-                    s = tbl.Columns.AddStringColumn("LinkPropertyValue", "Create1");
+                    s = tbl.Columns.AddStringColumn("LinkPropertyValue", "");
                     s = tbl.Columns.AddBooleanColumn("TablesUseAutoCreate", true);
                     var row = tbl.Rows.Create();
                     MessageBox.Show("AddNodesAndLinksToTables Table Created");
