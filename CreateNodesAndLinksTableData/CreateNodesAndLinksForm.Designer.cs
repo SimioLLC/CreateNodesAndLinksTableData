@@ -54,22 +54,22 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(821, 100);
+            this.cancelButton.Location = new System.Drawing.Point(851, 100);
             this.cancelButton.Margin = new System.Windows.Forms.Padding(4);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(232, 63);
-            this.cancelButton.TabIndex = 8;
+            this.cancelButton.TabIndex = 10;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
             // okButton
             // 
-            this.okButton.Location = new System.Drawing.Point(821, 24);
+            this.okButton.Location = new System.Drawing.Point(851, 24);
             this.okButton.Margin = new System.Windows.Forms.Padding(4);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(232, 64);
-            this.okButton.TabIndex = 7;
+            this.okButton.TabIndex = 9;
             this.okButton.Text = "OK";
             this.okButton.UseVisualStyleBackColor = true;
             this.okButton.Click += new System.EventHandler(this.okButton_Click);
@@ -83,14 +83,14 @@
             this.Direction.Location = new System.Drawing.Point(326, 393);
             this.Direction.Name = "Direction";
             this.Direction.Size = new System.Drawing.Size(235, 24);
-            this.Direction.TabIndex = 11;
+            this.Direction.TabIndex = 9;
             // 
             // NodeOffset
             // 
             this.NodeOffset.Location = new System.Drawing.Point(326, 250);
             this.NodeOffset.Name = "NodeOffset";
             this.NodeOffset.Size = new System.Drawing.Size(235, 22);
-            this.NodeOffset.TabIndex = 15;
+            this.NodeOffset.TabIndex = 5;
             this.NodeOffset.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NodeOffset_KeyPress);
             // 
             // UseExistingNodeOffset
@@ -98,7 +98,7 @@
             this.UseExistingNodeOffset.Location = new System.Drawing.Point(326, 297);
             this.UseExistingNodeOffset.Name = "UseExistingNodeOffset";
             this.UseExistingNodeOffset.Size = new System.Drawing.Size(235, 22);
-            this.UseExistingNodeOffset.TabIndex = 16;
+            this.UseExistingNodeOffset.TabIndex = 6;
             this.UseExistingNodeOffset.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.UseExistingNodeOffset_KeyPress);
             // 
             // label5
@@ -133,24 +133,25 @@
             this.ObjectPropertyName.Location = new System.Drawing.Point(326, 62);
             this.ObjectPropertyName.Name = "ObjectPropertyName";
             this.ObjectPropertyName.Size = new System.Drawing.Size(235, 22);
-            this.ObjectPropertyName.TabIndex = 23;
+            this.ObjectPropertyName.TabIndex = 1;
             // 
             // ObjectPropertyValue
             // 
             this.ObjectPropertyValue.Location = new System.Drawing.Point(326, 109);
             this.ObjectPropertyValue.Name = "ObjectPropertyValue";
             this.ObjectPropertyValue.Size = new System.Drawing.Size(235, 22);
-            this.ObjectPropertyValue.TabIndex = 24;
+            this.ObjectPropertyValue.TabIndex = 2;
             // 
             // Notes
             // 
             this.Notes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.Notes.Location = new System.Drawing.Point(821, 181);
+            this.Notes.Location = new System.Drawing.Point(581, 24);
             this.Notes.Margin = new System.Windows.Forms.Padding(4);
             this.Notes.Multiline = true;
             this.Notes.Name = "Notes";
-            this.Notes.Size = new System.Drawing.Size(232, 127);
+            this.Notes.Size = new System.Drawing.Size(232, 139);
             this.Notes.TabIndex = 25;
+            this.Notes.TabStop = false;
             this.Notes.Text = resources.GetString("Notes.Text");
             // 
             // label8
@@ -201,14 +202,14 @@
             this.LinkType.Location = new System.Drawing.Point(326, 203);
             this.LinkType.Name = "LinkType";
             this.LinkType.Size = new System.Drawing.Size(235, 22);
-            this.LinkType.TabIndex = 32;
+            this.LinkType.TabIndex = 4;
             // 
             // NodeType
             // 
             this.NodeType.Location = new System.Drawing.Point(326, 156);
             this.NodeType.Name = "NodeType";
             this.NodeType.Size = new System.Drawing.Size(235, 22);
-            this.NodeType.TabIndex = 31;
+            this.NodeType.TabIndex = 3;
             // 
             // label2
             // 
@@ -231,7 +232,7 @@
             this.NodeLocations.Location = new System.Drawing.Point(326, 344);
             this.NodeLocations.Name = "NodeLocations";
             this.NodeLocations.Size = new System.Drawing.Size(235, 24);
-            this.NodeLocations.TabIndex = 34;
+            this.NodeLocations.TabIndex = 7;
             // 
             // label3
             // 
@@ -246,7 +247,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1079, 483);
+            this.ClientSize = new System.Drawing.Size(1096, 483);
             this.ControlBox = false;
             this.Controls.Add(this.label3);
             this.Controls.Add(this.NodeLocations);

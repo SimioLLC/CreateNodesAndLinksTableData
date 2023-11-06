@@ -95,7 +95,7 @@ namespace CreateNodesAndLinksTableData
                 {
                     tbl = context.ActiveModel.Tables.Create("CreateNodesAndLinks");
                     var s = tbl.Columns.AddStringColumn("ObjectType", "Rack");
-                    s = tbl.Columns.AddStringColumn("ObjectPropertyName", "Filter");
+                    s = tbl.Columns.AddStringColumn("ObjectPropertyName", "");
                     s = tbl.Columns.AddStringColumn("ObjectPropertyValue", "");
                     s = tbl.Columns.AddStringColumn("NodeType", "RackNode");
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
@@ -114,36 +114,41 @@ namespace CreateNodesAndLinksTableData
                 }
 
                 // Add AddNodesAndLinksToTables Table
-                tbl = context.ActiveModel.Tables["AddNodesAndLinksToTables"];
+                tbl = context.ActiveModel.Tables["AddNodesLinksVerticesToTables"];
                 if (tbl != null)
                 {
-                    MessageBox.Show("AddNodesAndLinksToTables Table Already Exists", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("AddNodesLinksVerticesToTables Table Already Exists", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
-                    tbl = context.ActiveModel.Tables.Create("AddNodesAndLinksToTables");
+                    tbl = context.ActiveModel.Tables.Create("AddNodesLinksVerticesToTables");
+                    var s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
+                    s = tbl.Columns.AddStringColumn("LinkPropertyName", "");
+                    s = tbl.Columns.AddStringColumn("LinkPropertyValue", "");
                     var t = tbl.Columns.AddTableReferenceColumn("NodesTable");
                     t.DefaultString = "Nodes";
-                    var s = tbl.Columns.AddStringColumn("NodeColumnName", "Node");
-                    s = tbl.Columns.AddStringColumn("NodeTypeColumnName", "NodeType");
-                    s = tbl.Columns.AddStringColumn("XLocationColumnName", "XLoc");
-                    s = tbl.Columns.AddStringColumn("YLocationColumnName", "YLoc");
-                    s = tbl.Columns.AddStringColumn("ZLocationColumnName", "ZLoc");
+                    s = tbl.Columns.AddStringColumn("NodeColumnName", "Node");
+                    s = tbl.Columns.AddStringColumn("NodeTypeColumnName", "Type");
+                    s = tbl.Columns.AddStringColumn("NodeXColumnName", "X");
+                    s = tbl.Columns.AddStringColumn("NodeYColumnName", "Y");
+                    s = tbl.Columns.AddStringColumn("NodeZColumnName", "Z");
                     t = tbl.Columns.AddTableReferenceColumn("LinksTable");
                     t.DefaultString = "Links";
                     s = tbl.Columns.AddStringColumn("LinkColumnName", "Link");
                     s = tbl.Columns.AddStringColumn("LinkTypeColumnName", "Type");
                     s = tbl.Columns.AddStringColumn("StartingNodeColumnName", "StartingNode");
                     s = tbl.Columns.AddStringColumn("EndingNodeColumnName", "EndingNode");
-                    s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
-                    s = tbl.Columns.AddStringColumn("LinkPropertyName", "Filter");
-                    s = tbl.Columns.AddStringColumn("LinkPropertyValue", "");
+
+                    t = tbl.Columns.AddTableReferenceColumn("VerticesTable");
+                    t.DefaultString = "Vertices";
+                    s = tbl.Columns.AddStringColumn("VertexLinkColumnName", "Link");
+                    s = tbl.Columns.AddStringColumn("VertexXColumnName", "X");
+                    s = tbl.Columns.AddStringColumn("VertexYColumnName", "Y");
+                    s = tbl.Columns.AddStringColumn("VertexZColumnName", "Z");
                     s = tbl.Columns.AddBooleanColumn("TablesUseAutoCreate", true);
                     var row = tbl.Rows.Create();
                     MessageBox.Show("AddNodesAndLinksToTables Table Created");
                 }
-
-
             }
         }
 
@@ -237,8 +242,33 @@ namespace CreateNodesAndLinksTableData
                 {
                     context.ActiveModel.BulkUpdate(model =>
                     {
-                        var filterListOfObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.ObjectType.Text);
-                        var filterListOfObjects = filterListOfObjectsByType.Where(r => r.Properties[f.ObjectPropertyName.Text].Value == f.ObjectPropertyValue.Text).ToList();
+                        
+                        var filterListOfObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.ObjectType.Text).ToList();
+
+                        if (filterListOfObjectsByType.Count == 0)
+                        {
+                            MessageBox.Show("No Objects For Type Found", "No Objects For Type Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        var filterListOfObjects = new List<IIntelligentObject>();
+                        
+                        // If properyt defined
+                        if (f.ObjectPropertyName.Text.Length > 0)
+                        {
+                            IIntelligentObject intellObj = filterListOfObjects[0];
+                            var prop = intellObj.Properties[f.ObjectPropertyName.Text];
+                            if (prop == null)
+                            {
+                                MessageBox.Show("Property Name Not Found On Object", "Property Name Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            filterListOfObjects = filterListOfObjectsByType.Where(r => r.Properties[f.ObjectPropertyName.Text].Value == f.ObjectPropertyValue.Text).ToList();
+                        }
+                        else
+                        {
+                            filterListOfObjects = filterListOfObjectsByType.ToList();
+
+                        }
                         var sortedListOfObjects = new List<IIntelligentObject>();
                         if (f.Direction.Text == "LeftToRight") sortedListOfObjects = filterListOfObjects.OrderBy(z => z.Location.Z).ThenBy(y => y.Location.Y).ThenBy(x => x.Location.X).ToList();
                         else sortedListOfObjects = filterListOfObjects.OrderBy(x => x.Location.X).ThenBy(y => y.Location.Y).ThenBy(z => z.Location.Z).ToList();
@@ -390,10 +420,10 @@ namespace CreateNodesAndLinksTableData
             // This example code places some new objects from the Standard Library into the active model of the project.
             if (context.ActiveModel != null)
             {
-                var tbl = context.ActiveModel.Tables["AddNodesAndLinksToTables"];
+                var tbl = context.ActiveModel.Tables["AddNodesLinksVerticesToTables"];
                 if (tbl == null)
                 {
-                    MessageBox.Show("AddNodesAndLinksToTables Table Does Not Exists.  Please create table before running this add-in.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("AddNodesLinksVerticesToTables Table Does Not Exists.  Please create table before running this add-in.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 if (tbl.Rows.Count == 0)
@@ -407,20 +437,25 @@ namespace CreateNodesAndLinksTableData
 
                 var f = new AddNodesAndLinksToTablesForm();
                 var row = tbl.Rows[0];
+                f.LinkType.Text = row.Properties["LinkType"].Value;
+                f.LinkPropertyName.Text = row.Properties["LinkPropertyName"].Value;
+                f.LinkPropertyValue.Text = row.Properties["LinkPropertyValue"].Value;
                 f.NodesTable.Text = row.Properties["NodesTable"].Value;
                 f.NodeColumnName.Text = row.Properties["NodeColumnName"].Value;
                 f.NodeTypeColumnName.Text = row.Properties["NodeTypeColumnName"].Value;
-                f.XLocationColumnName.Text = row.Properties["XLocationColumnName"].Value;
-                f.YLocationColumnName.Text = row.Properties["YLocationColumnName"].Value;
-                f.ZLocationColumnName.Text = row.Properties["ZLocationColumnName"].Value;
+                f.NodeXColumnName.Text = row.Properties["NodeXColumnName"].Value;
+                f.NodeYColumnName.Text = row.Properties["NodeYColumnName"].Value;
+                f.NodeZColumnName.Text = row.Properties["NodeZColumnName"].Value;
                 f.LinksTable.Text = row.Properties["LinksTable"].Value;
                 f.LinkColumnName.Text = row.Properties["LinkColumnName"].Value;
                 f.LinkTypeColumnName.Text = row.Properties["LinkTypeColumnName"].Value;
                 f.StartingNodeColumnName.Text = row.Properties["StartingNodeColumnName"].Value;
                 f.EndingNodeColumnName.Text = row.Properties["EndingNodeColumnName"].Value;
-                f.LinkType.Text = row.Properties["LinkType"].Value;
-                f.LinkPropertyName.Text = row.Properties["LinkPropertyName"].Value;
-                f.LinkPropertyValue.Text = row.Properties["LinkPropertyValue"].Value;
+                f.VerticesTable.Text = row.Properties["VerticesTable"].Value;
+                f.VertexLinkColumnName.Text = row.Properties["VertexLinkColumnName"].Value;
+                f.VertexXColumnName.Text = row.Properties["VertexXColumnName"].Value;
+                f.VertexYColumnName.Text = row.Properties["VertexYColumnName"].Value;
+                f.VertexZColumnName.Text = row.Properties["VertexZColumnName"].Value;
                 f.TablesUseAutoCreate.Checked = Convert.ToBoolean(row.Properties["TablesUseAutoCreate"].Value);
 
                 f.ShowDialog();
@@ -428,11 +463,36 @@ namespace CreateNodesAndLinksTableData
                 if (f.OkButtonSelected == true)
                 {
                     context.ActiveModel.BulkUpdate(model =>
-                    {
-                        var filterListOfLinksByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text);
-                        var filterListOfLinks = filterListOfLinksByType.Where(r => r.Properties[f.LinkPropertyName.Text].Value == f.LinkPropertyValue.Text).ToList();
+                    {                      
+                        var filterListOfLinksByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text).ToList();
+                        if (filterListOfLinksByType.Count == 0)
+                        {
+                            MessageBox.Show("No Links For Type Found", "No Links For Type Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        var filterListOfLinks = new List<IIntelligentObject>();
+                        // If properyt defined
+                        if (f.LinkPropertyName.Text.Length > 0)
+                        {
+                            IIntelligentObject intellObj = filterListOfLinksByType[0];
+                            var prop = intellObj.Properties[f.LinkPropertyName.Text];
+                            if (prop == null)
+                            {
+                                MessageBox.Show("Property Name Not Found On Object", "Property Name Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            filterListOfLinks = filterListOfLinksByType.Where(r => r.Properties[f.LinkPropertyName.Text].Value == f.LinkPropertyValue.Text).ToList();
+                        }
+                        else
+                        {
+                            filterListOfLinks = filterListOfLinksByType.ToList();
+
+                        }
+                        
                         var nodesTable = context.ActiveModel.Tables[f.NodesTable.Text];
                         var linksTable = context.ActiveModel.Tables[f.LinksTable.Text];
+                        var verticesTable = context.ActiveModel.Tables[f.VerticesTable.Text];
 
                         foreach (ILinkObject linkObj in filterListOfLinks)
                         {
@@ -454,9 +514,9 @@ namespace CreateNodesAndLinksTableData
                                     var beginRow = nodesTable.Rows.Create();
                                     beginRow.Properties[f.NodeColumnName.Text].Value = linkObj.Begin.ObjectName;
                                     beginRow.Properties[f.NodeTypeColumnName.Text].Value = linkObj.Begin.TypeName;
-                                    beginRow.Properties[f.XLocationColumnName.Text].Value = linkObj.Begin.Location.X.ToString();
-                                    beginRow.Properties[f.YLocationColumnName.Text].Value = linkObj.Begin.Location.Y.ToString();
-                                    beginRow.Properties[f.ZLocationColumnName.Text].Value = linkObj.Begin.Location.Z.ToString();
+                                    beginRow.Properties[f.NodeXColumnName.Text].Value = linkObj.Begin.Location.X.ToString();
+                                    beginRow.Properties[f.NodeYColumnName.Text].Value = linkObj.Begin.Location.Y.ToString();
+                                    beginRow.Properties[f.NodeZColumnName.Text].Value = linkObj.Begin.Location.Z.ToString();
                                 }
                             }
 
@@ -478,9 +538,9 @@ namespace CreateNodesAndLinksTableData
                                     var endRow = nodesTable.Rows.Create();
                                     endRow.Properties[f.NodeColumnName.Text].Value = linkObj.End.ObjectName;
                                     endRow.Properties[f.NodeTypeColumnName.Text].Value = linkObj.End.TypeName;
-                                    endRow.Properties[f.XLocationColumnName.Text].Value = linkObj.End.Location.X.ToString();
-                                    endRow.Properties[f.YLocationColumnName.Text].Value = linkObj.End.Location.Y.ToString();
-                                    endRow.Properties[f.ZLocationColumnName.Text].Value = linkObj.End.Location.Z.ToString();
+                                    endRow.Properties[f.NodeXColumnName.Text].Value = linkObj.End.Location.X.ToString();
+                                    endRow.Properties[f.NodeYColumnName.Text].Value = linkObj.End.Location.Y.ToString();
+                                    endRow.Properties[f.NodeZColumnName.Text].Value = linkObj.End.Location.Z.ToString();
                                 }
                             }
 
@@ -498,10 +558,22 @@ namespace CreateNodesAndLinksTableData
                                 endRow.Properties[f.LinkTypeColumnName.Text].Value = linkObj.TypeName;
                                 endRow.Properties[f.StartingNodeColumnName.Text].Value = linkObj.Begin.ObjectName;
                                 endRow.Properties[f.EndingNodeColumnName.Text].Value = linkObj.End.ObjectName;
+
+                                if (linkObj.InteriorVertices != null && linkObj.InteriorVertices.Count > 0)
+                                {
+                                    foreach (FacilityLocation vertFL in linkObj.InteriorVertices)
+                                    {
+                                        var vertRow = verticesTable.Rows.Create();
+                                        vertRow.Properties[f.VertexLinkColumnName.Text].Value = linkObj.ObjectName;
+                                        vertRow.Properties[f.VertexXColumnName.Text].Value = vertFL.X.ToString();
+                                        vertRow.Properties[f.VertexYColumnName.Text].Value = vertFL.Y.ToString();
+                                        vertRow.Properties[f.VertexZColumnName.Text].Value = vertFL.Z.ToString();
+                                    }
+                                }
                             }                            
                         }                         
                                                 
-                        MessageBox.Show("Node And Links Added To Tables Completed", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        MessageBox.Show("Node, Links and Vertices Added To Tables Completed", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 
                     });
                 }

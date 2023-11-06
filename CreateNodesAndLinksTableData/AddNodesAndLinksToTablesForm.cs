@@ -76,5 +76,6 @@ namespace CreateNodesAndLinksTableData
             OkButtonSelected = false;
             this.Close();
         }
+
     }
 }
