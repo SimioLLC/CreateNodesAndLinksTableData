@@ -255,7 +255,7 @@ namespace CreateNodesAndLinksTableData
                         // If properyt defined
                         if (f.ObjectPropertyName.Text.Length > 0)
                         {
-                            IIntelligentObject intellObj = filterListOfObjects[0];
+                            IIntelligentObject intellObj = filterListOfObjectsByType[0];
                             var prop = intellObj.Properties[f.ObjectPropertyName.Text];
                             if (prop == null)
                             {
