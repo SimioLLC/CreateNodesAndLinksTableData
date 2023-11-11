@@ -262,6 +262,11 @@ namespace CreateNodesAndLinksTableData
                                 MessageBox.Show("Property Name Not Found On Object", "Property Name Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
+                            if (f.ObjectPropertyValue.Text.Length == 0)
+                            {
+                                MessageBox.Show("Property Value Not Provided", "Property Value Not Provided", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
                             filterListOfObjects = filterListOfObjectsByType.Where(r => r.Properties[f.ObjectPropertyName.Text].Value == f.ObjectPropertyValue.Text).ToList();
                         }
                         else
@@ -480,6 +485,11 @@ namespace CreateNodesAndLinksTableData
                             if (prop == null)
                             {
                                 MessageBox.Show("Property Name Not Found On Object", "Property Name Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            if (f.LinkPropertyValue.Text.Length == 0)
+                            {
+                                MessageBox.Show("Property Value Not Provided", "Property Value Not Provided", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
                             filterListOfLinks = filterListOfLinksByType.Where(r => r.Properties[f.LinkPropertyName.Text].Value == f.LinkPropertyValue.Text).ToList();
