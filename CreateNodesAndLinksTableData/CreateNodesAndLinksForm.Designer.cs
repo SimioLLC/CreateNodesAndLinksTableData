@@ -229,7 +229,9 @@
             this.NodeLocations.FormattingEnabled = true;
             this.NodeLocations.Items.AddRange(new object[] {
             "BothBelowObject",
-            "InputLeftOutputRight"});
+            "InputLeftOutputRight",
+            "InputLeft",
+            "OutputRight"});
             this.NodeLocations.Location = new System.Drawing.Point(326, 344);
             this.NodeLocations.Name = "NodeLocations";
             this.NodeLocations.Size = new System.Drawing.Size(235, 24);

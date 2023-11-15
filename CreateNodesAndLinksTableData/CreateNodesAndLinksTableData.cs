@@ -66,6 +66,10 @@ namespace CreateNodesAndLinksTableData
                     firstRow.Properties[0].Value = "BothBelowObject";
                     var secondRow = nodeLocationsList.Rows.Create();
                     secondRow.Properties[0].Value = "InputLeftOutputRight";
+                    var thirdRow = nodeLocationsList.Rows.Create();
+                    thirdRow.Properties[0].Value = "InputLeft";
+                    var forthRow = nodeLocationsList.Rows.Create();
+                    forthRow.Properties[0].Value = "OutputRight";
                     MessageBox.Show("CreateNodesAndLinksNodeLocations List Created");
                 }
 
@@ -302,74 +306,83 @@ namespace CreateNodesAndLinksTableData
                         {
                             int loopCount = 1;
                             bool InputLeftOuputRight = false;
-                            if (f.NodeLocations.Text == "InputLeftOutputRight")
+                            if (f.NodeLocations.Text == "InputLeftOutputRight" || f.NodeLocations.Text == "InputRight" || f.NodeLocations.Text == "OutputRight")
                             {
                                 InputLeftOuputRight = true;
-                                loopCount++;
+                                if (f.NodeLocations.Text == "InputLeftOutputRight" || f.NodeLocations.Text == "OutputRight")
+                                {
+                                    loopCount++;
+                                }
                             }
 
                             // InputLeftOuputRight == Fase...Only one loop...InputLeftOuputRight == True...First loop for input and secons loop for output
                             for (int currentLoop = 0; currentLoop < loopCount; currentLoop++)
                             {
-                                //find angle using Yaw
-                                double angle;
-
-                                if (InputLeftOuputRight == false) angle = intellObj.Yaw * Math.PI / 180;
-                                else if (currentLoop== 0) angle = (intellObj.Yaw + 90) * Math.PI / 180;
-                                else angle = (intellObj.Yaw - 90) * Math.PI / 180;
-
-                                // determine new facility location for node
-                                var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * nodeOffet));
-
-                                // check to see if node already exists
-                                var filterListOfNodesByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.NodeType.Text);
-                                var filterListOfNodes = filterListOfNodesByType.Where(r => (r.Location.X - useExistingNodeOffset) <= loc.X && (r.Location.X + useExistingNodeOffset) >= loc.X && (r.Location.Z - useExistingNodeOffset) <= loc.Z && (r.Location.Z + useExistingNodeOffset) >= loc.Z).ToList();
-
-                                // if node already exist, use node, if not create node and links
-                                if (filterListOfNodes.Count > 0) node = filterListOfNodes[0];
-                                else
+                                // if not first look or node locations not equal OutputRight
+                                if (currentLoop != 0 || f.NodeLocations.Text != "OutputRight")
                                 {
-                                    node = context.ActiveModel.Facility.IntelligentObjects.CreateObject(f.NodeType.Text, loc);
-                                    // Add Links
-                                    if (currentLoop == 0 && prevNode0 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode0.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode0.Location.Z)))
-                                    {
-                                        context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode0, (INodeObject)node, null);
-                                    }
-                                    if (currentLoop == 1 && prevNode1 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode1.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode1.Location.Z)))
-                                    {
-                                        context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode1, (INodeObject)node, null);
-                                    }
-                                }
+                                    //find angle using Yaw
+                                    double angle;
 
-                                var filterListOfLinkObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text).ToList();
-                                var filterListOfLinksByType = filterListOfLinkObjectsByType.Cast<ILinkObject>().ToList();
-                                
-                                // For InputNode 
-                                if (InputLeftOuputRight == false || currentLoop == 0)
-                                {
-                                    var inputNode = context.ActiveModel.Facility.IntelligentObjects["Input@" + intellObj.ObjectName];
-                                    if (inputNode != null)
-                                    {
-                                        var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)node && r.End == (INodeObject)inputNode).ToList();
-                                        if (filterListOfLinks.Count == 0)
-                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)node, (INodeObject)inputNode, null);
-                                    }
-                                }
+                                    if (InputLeftOuputRight == false) angle = intellObj.Yaw * Math.PI / 180;
+                                    else if (currentLoop == 0) angle = (intellObj.Yaw + 90) * Math.PI / 180;
+                                    else angle = (intellObj.Yaw - 90) * Math.PI / 180;
 
-                                // For OutputNode 
-                                if (InputLeftOuputRight == false || currentLoop == 1)
-                                {
-                                    var outputNode = context.ActiveModel.Facility.IntelligentObjects["Output@" + intellObj.ObjectName];
-                                    if (outputNode != null)
-                                    {
-                                        var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)outputNode && r.End == (INodeObject)node).ToList();
-                                        if (filterListOfLinks.Count == 0)
-                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
-                                    }
-                                }
+                                    // determine new facility location for node
+                                    var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * nodeOffet));
 
-                                if (currentLoop == 0) prevNode0 = node;
-                                else prevNode1 = node;
+                                    // check to see if node already exists
+                                    var filterListOfNodesByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.NodeType.Text);
+                                    var filterListOfNodes = filterListOfNodesByType.Where(r => (r.Location.X - useExistingNodeOffset) <= loc.X && (r.Location.X + useExistingNodeOffset) >= loc.X
+                                        && (r.Location.Y - useExistingNodeOffset) <= loc.Y && (r.Location.Y + useExistingNodeOffset) >= loc.Y
+                                        && (r.Location.Z - useExistingNodeOffset) <= loc.Z && (r.Location.Z + useExistingNodeOffset) >= loc.Z).ToList();
+
+                                    // if node already exist, use node, if not create node and links
+                                    if (filterListOfNodes.Count > 0) node = filterListOfNodes[0];
+                                    else
+                                    {
+                                        node = context.ActiveModel.Facility.IntelligentObjects.CreateObject(f.NodeType.Text, loc);
+                                        // Add Links
+                                        if (currentLoop == 0 && prevNode0 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode0.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode0.Location.Z)))
+                                        {
+                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode0, (INodeObject)node, null);
+                                        }
+                                        if (currentLoop == 1 && prevNode1 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode1.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode1.Location.Z)))
+                                        {
+                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode1, (INodeObject)node, null);
+                                        }
+                                    }
+
+                                    var filterListOfLinkObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text).ToList();
+                                    var filterListOfLinksByType = filterListOfLinkObjectsByType.Cast<ILinkObject>().ToList();
+
+                                    // For InputNode 
+                                    if (InputLeftOuputRight == false || currentLoop == 0)
+                                    {
+                                        var inputNode = context.ActiveModel.Facility.IntelligentObjects["Input@" + intellObj.ObjectName];
+                                        if (inputNode != null)
+                                        {
+                                            var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)node && r.End == (INodeObject)inputNode).ToList();
+                                            if (filterListOfLinks.Count == 0)
+                                                context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)node, (INodeObject)inputNode, null);
+                                        }
+                                    }
+
+                                    // For OutputNode 
+                                    if (InputLeftOuputRight == false || currentLoop == 1)
+                                    {
+                                        var outputNode = context.ActiveModel.Facility.IntelligentObjects["Output@" + intellObj.ObjectName];
+                                        if (outputNode != null)
+                                        {
+                                            var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)outputNode && r.End == (INodeObject)node).ToList();
+                                            if (filterListOfLinks.Count == 0)
+                                                context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
+                                        }
+                                    }
+
+                                    if (currentLoop == 0) prevNode0 = node;
+                                    else prevNode1 = node;
+                                }
 
                             }
                         }
