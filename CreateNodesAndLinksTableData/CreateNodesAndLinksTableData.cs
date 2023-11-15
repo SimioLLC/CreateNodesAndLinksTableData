@@ -259,8 +259,7 @@ namespace CreateNodesAndLinksTableData
                 if (f.OkButtonSelected == true)
                 {
                     context.ActiveModel.BulkUpdate(model =>
-                    {
-                        
+                    {                        
                         var filterListOfObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.ObjectType.Text).ToList();
 
                         if (filterListOfObjectsByType.Count == 0)
@@ -338,18 +337,25 @@ namespace CreateNodesAndLinksTableData
                                         && (r.Location.Z - useExistingNodeOffset) <= loc.Z && (r.Location.Z + useExistingNodeOffset) >= loc.Z).ToList();
 
                                     // if node already exist, use node, if not create node and links
-                                    if (filterListOfNodes.Count > 0) node = filterListOfNodes[0];
+                                    if (filterListOfNodes.Count > 0)
+                                    {
+                                        node = filterListOfNodes[0];
+                                        node.ObjectName = node.ObjectName + "_" + intellObj.ObjectName;
+                                    }
                                     else
                                     {
                                         node = context.ActiveModel.Facility.IntelligentObjects.CreateObject(f.NodeType.Text, loc);
+                                        node.ObjectName = node.TypeName + "_" + intellObj.ObjectName;
                                         // Add Links
                                         if (currentLoop == 0 && prevNode0 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode0.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode0.Location.Z)))
                                         {
-                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode0, (INodeObject)node, null);
+                                            var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode0, (INodeObject)node, null);
+                                            link.ObjectName = link.TypeName + "_" + prevNode0.ObjectName + "_" + node.ObjectName;
                                         }
                                         if (currentLoop == 1 && prevNode1 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode1.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode1.Location.Z)))
                                         {
-                                            context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode1, (INodeObject)node, null);
+                                            var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode1, (INodeObject)node, null);
+                                            link.ObjectName = link.TypeName + "_" + prevNode1.ObjectName + "_" + node.ObjectName;
                                         }
                                     }
 
@@ -364,7 +370,10 @@ namespace CreateNodesAndLinksTableData
                                         {
                                             var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)node && r.End == (INodeObject)inputNode).ToList();
                                             if (filterListOfLinks.Count == 0)
-                                                context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)node, (INodeObject)inputNode, null);
+                                            {
+                                                var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)node, (INodeObject)inputNode, null);
+                                                link.ObjectName = link.TypeName + "_" + node.ObjectName + "_" + inputNode.ObjectName;
+                                            }
                                         }
                                     }
 
@@ -376,7 +385,10 @@ namespace CreateNodesAndLinksTableData
                                         {
                                             var filterListOfLinks = filterListOfLinksByType.Where(r => r.Begin == (INodeObject)outputNode && r.End == (INodeObject)node).ToList();
                                             if (filterListOfLinks.Count == 0)
-                                                context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
+                                            {
+                                                var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
+                                                link.ObjectName = link.TypeName + "_" + outputNode.ObjectName + "_" + node.ObjectName;
+                                            }
                                         }
                                     }
 
