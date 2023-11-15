@@ -61,5 +61,10 @@ namespace CreateNodesAndLinksTableData
                 e.Handled = true;
             }
         }
+
+        private void Notes_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -89,5 +89,15 @@ namespace CreateNodesAndLinksTableData.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap MoveNodesToObjectEdges {
+            get {
+                object obj = ResourceManager.GetObject("MoveNodesToObjectEdges", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

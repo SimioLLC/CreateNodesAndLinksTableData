@@ -153,6 +153,7 @@
             this.Notes.TabIndex = 25;
             this.Notes.TabStop = false;
             this.Notes.Text = resources.GetString("Notes.Text");
+            this.Notes.TextChanged += new System.EventHandler(this.Notes_TextChanged);
             // 
             // label8
             // 

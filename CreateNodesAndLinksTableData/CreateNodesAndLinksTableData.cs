@@ -149,6 +149,20 @@ namespace CreateNodesAndLinksTableData
                     var row = tbl.Rows.Create();
                     MessageBox.Show("AddNodesAndLinksToTables Table Created");
                 }
+
+                // Add CreateNodesAndLinks Table
+                tbl = context.ActiveModel.Tables["MoveNodesToObjectEdges"];
+                if (tbl != null)
+                {
+                    MessageBox.Show("MoveNodesToObjectEdges Table Already Exists", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    tbl = context.ActiveModel.Tables.Create("MoveNodesToObjectEdges");
+                    var s = tbl.Columns.AddStringColumn("ObjectType", "Rack");
+                    var row = tbl.Rows.Create();
+                    MessageBox.Show("MoveNodesToObjectEdges Table Created");
+                }
             }
         }
 
@@ -588,6 +602,129 @@ namespace CreateNodesAndLinksTableData
                     });
                 }
             }
+        }
+
+        #endregion
+
+        #region IDesignAddInGuiDetails Members
+
+        public string CategoryName
+        {
+            get { return null; }
+        }
+
+        public string TabName
+        {
+            get { return "Add-Ins"; }
+        }
+
+        public string GroupName
+        {
+            get { return "Create Nodes And Links Table Data"; }
+        }
+
+        #endregion
+    }
+
+    internal class MoveNodesToObjectEdges : IDesignAddIn, IDesignAddInGuiDetails
+    {
+        #region IDesignAddIn Members
+
+        /// <summary>
+        /// Property returning the name of the add-in. This name may contain any characters and is used as the display name for the add-in in the UI.
+        /// </summary>
+        public string Name
+        {
+            get { return "Move Nodes To Object Edges"; }
+        }
+
+        /// <summary>
+        /// Property returning a short description of what the add-in does.
+        /// </summary>
+        public string Description
+        {
+            get { return "Move Nodes To Object Edges."; }
+        }
+
+        /// <summary>
+        /// Property returning an icon to display for the add-in in the UI.
+        /// </summary>
+        public System.Drawing.Image Icon
+        {
+            get { return Properties.Resources.MoveNodesToObjectEdges; }
+        }
+
+        /// <summary>
+        /// Method called when the add-in is run.
+        /// </summary>
+        public void Execute(IDesignContext context)
+        {
+            // This example code places some new objects from the Standard Library into the active model of the project.
+            if (context.ActiveModel != null)
+            {
+                var tbl = context.ActiveModel.Tables["MoveNodesToObjectEdges"];
+                if (tbl == null)
+                {
+                    MessageBox.Show("MoveNodesToObjectEdges Table Does Not Exists.  Please create table before running this add-in.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (tbl.Rows.Count == 0)
+                {
+                    tbl.Rows.Create();
+                }
+                if (tbl.Rows.Count > 1)
+                {
+                    MessageBox.Show("MoveNodesToObjectEdges Table Contains More Than One Row.   Only the first row will be used.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                var f = new MoveNodesToObjectEdgesForm();
+                var row = tbl.Rows[0];
+                f.ObjectType.Text = row.Properties["ObjectType"].Value;
+                f.ShowDialog();
+
+                if (f.OkButtonSelected == true)
+                {
+                    context.ActiveModel.BulkUpdate(model =>
+                    {
+
+                        var filterListOfObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.ObjectType.Text).ToList();
+
+                        if (filterListOfObjectsByType.Count == 0)
+                        {
+                            MessageBox.Show("No Objects For Type Found", "No Objects For Type Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        
+                        foreach (IIntelligentObject intellObj in filterListOfObjectsByType)
+                        {
+                            //find angles using Yaw
+                            double inputAngle = (intellObj.Yaw + 90) * Math.PI / 180;
+                            double outputAngle = (intellObj.Yaw - 90) * Math.PI / 180;
+                            double halfWidth = intellObj.Size.Length / 2;
+                            var inputLoc = new FacilityLocation(intellObj.Location.X + (Math.Cos(inputAngle) * halfWidth), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(inputAngle) * halfWidth));
+                            var outputloc = new FacilityLocation(intellObj.Location.X + (Math.Cos(outputAngle) * halfWidth), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(outputAngle) * halfWidth));
+
+                            //updated input node location
+                            var inputNode = context.ActiveModel.Facility.IntelligentObjects["Input@" + intellObj.ObjectName];
+                            if (inputNode != null)
+                            {
+                                inputNode.Location = inputLoc;
+                            }
+
+                            //updated output node location
+                            var outputNode = context.ActiveModel.Facility.IntelligentObjects["Output@" + intellObj.ObjectName];
+                            if (outputNode != null)
+                            {
+                                outputNode.Location = outputloc;
+                            }
+                        }
+                        
+                    });
+                    MessageBox.Show("Move Nodes To Object Edges Completed", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                }               
+
+            }
+
         }
 
         #endregion
