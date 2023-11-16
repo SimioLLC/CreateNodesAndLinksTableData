@@ -345,18 +345,22 @@ namespace CreateNodesAndLinksTableData
                                     else
                                     {
                                         node = context.ActiveModel.Facility.IntelligentObjects.CreateObject(f.NodeType.Text, loc);
+                                        if (node == null) throw new Exception("Node Not Created For NodeType:" + f.NodeType.Text);
                                         node.ObjectName = node.TypeName + "_" + intellObj.ObjectName;
                                         // Add Links
                                         if (currentLoop == 0 && prevNode0 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode0.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode0.Location.Z)))
                                         {
                                             var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode0, (INodeObject)node, null);
+                                            if (link == null) throw new Exception("Link Not Created For NodeType:" + f.LinkType.Text);
                                             link.ObjectName = link.TypeName + "_" + prevNode0.ObjectName + "_" + node.ObjectName;
                                         }
                                         if (currentLoop == 1 && prevNode1 != null && ((f.Direction.Text == "LeftToRight" && node.Location.X > prevNode1.Location.X) || (f.Direction.Text != "LeftToRight" && node.Location.Z > prevNode1.Location.Z)))
                                         {
                                             var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)prevNode1, (INodeObject)node, null);
+                                            if (link == null) throw new Exception("Link Not Created For NodeType:" + f.LinkType.Text);
                                             link.ObjectName = link.TypeName + "_" + prevNode1.ObjectName + "_" + node.ObjectName;
                                         }
+                                        
                                     }
 
                                     var filterListOfLinkObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text).ToList();
@@ -372,6 +376,7 @@ namespace CreateNodesAndLinksTableData
                                             if (filterListOfLinks.Count == 0)
                                             {
                                                 var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)node, (INodeObject)inputNode, null);
+                                                if (link == null) throw new Exception("Link Not Created For NodeType:" + f.LinkType.Text);
                                                 link.ObjectName = link.TypeName + "_" + node.ObjectName + "_" + inputNode.ObjectName;
                                             }
                                         }
@@ -387,6 +392,7 @@ namespace CreateNodesAndLinksTableData
                                             if (filterListOfLinks.Count == 0)
                                             {
                                                 var link = context.ActiveModel.Facility.IntelligentObjects.CreateLink(f.LinkType.Text, (INodeObject)outputNode, (INodeObject)node, null);
+                                                if (link == null) throw new Exception("Link Not Created For NodeType:" + f.LinkType.Text);
                                                 link.ObjectName = link.TypeName + "_" + outputNode.ObjectName + "_" + node.ObjectName;
                                             }
                                         }
