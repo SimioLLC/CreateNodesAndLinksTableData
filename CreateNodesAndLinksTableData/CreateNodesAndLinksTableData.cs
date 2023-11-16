@@ -305,7 +305,7 @@ namespace CreateNodesAndLinksTableData
                         {
                             int loopCount = 1;
                             bool InputLeftOuputRight = false;
-                            if (f.NodeLocations.Text == "InputLeftOutputRight" || f.NodeLocations.Text == "InputRight" || f.NodeLocations.Text == "OutputRight")
+                            if (f.NodeLocations.Text == "InputLeftOutputRight" || f.NodeLocations.Text == "InputLeft" || f.NodeLocations.Text == "OutputRight")
                             {
                                 InputLeftOuputRight = true;
                                 if (f.NodeLocations.Text == "InputLeftOutputRight" || f.NodeLocations.Text == "OutputRight")
@@ -314,21 +314,21 @@ namespace CreateNodesAndLinksTableData
                                 }
                             }
 
-                            // InputLeftOuputRight == Fase...Only one loop...InputLeftOuputRight == True...First loop for input and secons loop for output
+                            // InputLeftOuputRight == False...Only one loop...InputLeftOuputRight == True...First loop for input and secons loop for output
                             for (int currentLoop = 0; currentLoop < loopCount; currentLoop++)
                             {
                                 // if not first look or node locations not equal OutputRight
                                 if (currentLoop != 0 || f.NodeLocations.Text != "OutputRight")
                                 {
-                                    //find angle using Yaw
-                                    double angle;
+                                    //find angle in radians using Yaw
+                                    double radians;
 
-                                    if (InputLeftOuputRight == false) angle = intellObj.Yaw * Math.PI / 180;
-                                    else if (currentLoop == 0) angle = (intellObj.Yaw + 90) * Math.PI / 180;
-                                    else angle = (intellObj.Yaw - 90) * Math.PI / 180;
+                                    if (InputLeftOuputRight == false) radians = intellObj.Yaw * Math.PI / 180;
+                                    else if (currentLoop == 0) radians = (intellObj.Yaw + 90) * Math.PI / 180;
+                                    else radians = (intellObj.Yaw - 90) * Math.PI / 180;
 
                                     // determine new facility location for node
-                                    var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * nodeOffet));
+                                    var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(radians) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(radians) * nodeOffet));
 
                                     // check to see if node already exists
                                     var filterListOfNodesByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.NodeType.Text);
@@ -340,7 +340,8 @@ namespace CreateNodesAndLinksTableData
                                     if (filterListOfNodes.Count > 0)
                                     {
                                         node = filterListOfNodes[0];
-                                        node.ObjectName = node.ObjectName + "_" + intellObj.ObjectName;
+                                        if (node.ObjectName.Contains(intellObj.ObjectName) == false)
+                                            node.ObjectName = node.ObjectName + "_" + intellObj.ObjectName;
                                     }
                                     else
                                     {
