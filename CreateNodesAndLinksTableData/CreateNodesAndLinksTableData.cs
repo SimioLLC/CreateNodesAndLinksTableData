@@ -82,10 +82,15 @@ namespace CreateNodesAndLinksTableData
                 else
                 {
                     directionList = context.ActiveModel.NamedLists.AddStringList("CreateNodesAndLinksDirection");
+
                     var firstRow = directionList.Rows.Create();
                     firstRow.Properties[0].Value = "LeftToRight";
                     var secondRow = directionList.Rows.Create();
-                    secondRow.Properties[0].Value = "TopToBottom";
+                    secondRow.Properties[0].Value = "RightToLeft";
+                    var thirdRow = directionList.Rows.Create();
+                    thirdRow.Properties[0].Value = "TopToBottom";
+                    var fourthRow = directionList.Rows.Create();
+                    fourthRow.Properties[0].Value = "BottomToTop";
                     MessageBox.Show("CreateNodesAndLinksDirection List Created");
                 }
 
@@ -293,6 +298,8 @@ namespace CreateNodesAndLinksTableData
                         }
                         var sortedListOfObjects = new List<IIntelligentObject>();
                         if (f.Direction.Text == "LeftToRight") sortedListOfObjects = filterListOfObjects.OrderBy(z => z.Location.Z).ThenBy(y => y.Location.Y).ThenBy(x => x.Location.X).ToList();
+                        else if (f.Direction.Text == "RightToLeft") sortedListOfObjects = filterListOfObjects.OrderBy(z => z.Location.Z).ThenBy(y => y.Location.Y).ThenBy(x => (x.Location.X * -1)).ToList();
+                        else if (f.Direction.Text == "BottomToTop") sortedListOfObjects = filterListOfObjects.OrderBy(z => (z.Location.Z * -1)).ThenBy(y => y.Location.Y).ThenBy(x => x.Location.X).ToList();
                         else sortedListOfObjects = filterListOfObjects.OrderBy(x => x.Location.X).ThenBy(y => y.Location.Y).ThenBy(z => z.Location.Z).ToList();
 
                         IIntelligentObject prevNode0 = null;
@@ -483,7 +490,7 @@ namespace CreateNodesAndLinksTableData
                 }
                 if (tbl.Rows.Count > 1)
                 {
-                    MessageBox.Show("CreateNodesAndLinks Table Contains More Than One Row.   Only the first row will be used.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("AddNodesLinksVerticesToTables Table Contains More Than One Row.   Only the first row will be used.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
 
                 var f = new AddNodesAndLinksToTablesForm();
