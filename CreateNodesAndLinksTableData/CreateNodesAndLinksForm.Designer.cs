@@ -79,7 +79,9 @@
             this.Direction.FormattingEnabled = true;
             this.Direction.Items.AddRange(new object[] {
             "LeftToRight",
-            "TopToBottom"});
+            "RightToLeft",
+            "TopToBottom",
+            "BottomToTop"});
             this.Direction.Location = new System.Drawing.Point(326, 393);
             this.Direction.Name = "Direction";
             this.Direction.Size = new System.Drawing.Size(235, 24);
