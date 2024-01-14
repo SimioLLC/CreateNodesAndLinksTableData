@@ -57,12 +57,14 @@
     <Compile Include="AddNodesAndLinksToTablesForm.Designer.cs">
       <DependentUpon>AddNodesAndLinksToTablesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="BaseSteeringBehaviors.cs" />
     <Compile Include="CreateNodesAndLinksForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CreateNodesAndLinksForm.Designer.cs">
       <DependentUpon>CreateNodesAndLinksForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="FollowShortestPathToNode.cs" />
     <Compile Include="MoveNodesToObjectEdgesForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -76,6 +78,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="PropertyUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="AddNodesAndLinksToTablesForm.resx">
