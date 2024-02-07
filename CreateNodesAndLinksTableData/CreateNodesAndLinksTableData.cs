@@ -104,7 +104,7 @@ namespace CreateNodesAndLinksTableData
                 {
                     tbl = context.ActiveModel.Tables.Create("CreateNodesAndLinks");
                     var s = tbl.Columns.AddStringColumn("ObjectType", "Rack");
-                    s = tbl.Columns.AddStringColumn("ObjectPropertyName", "");
+                    s = tbl.Columns.AddStringColumn("ObjectPropertyName", "Filter");
                     s = tbl.Columns.AddStringColumn("ObjectPropertyValue", "");
                     s = tbl.Columns.AddStringColumn("NodeType", "RackNode");
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
@@ -132,7 +132,7 @@ namespace CreateNodesAndLinksTableData
                 {
                     tbl = context.ActiveModel.Tables.Create("AddNodesLinksVerticesToTables");
                     var s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
-                    s = tbl.Columns.AddStringColumn("LinkPropertyName", "");
+                    s = tbl.Columns.AddStringColumn("LinkPropertyName", "Filter");
                     s = tbl.Columns.AddStringColumn("LinkPropertyValue", "");
                     var t = tbl.Columns.AddTableReferenceColumn("NodesTable");
                     t.DefaultString = "Nodes";
