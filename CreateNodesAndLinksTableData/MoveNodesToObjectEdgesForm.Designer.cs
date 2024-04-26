@@ -34,6 +34,8 @@
             this.Notes = new System.Windows.Forms.TextBox();
             this.cancelButton = new System.Windows.Forms.Button();
             this.okButton = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.NodeLocations = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // ObjectType
@@ -86,12 +88,38 @@
             this.okButton.UseVisualStyleBackColor = true;
             this.okButton.Click += new System.EventHandler(this.okButton_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(31, 107);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(105, 16);
+            this.label3.TabIndex = 37;
+            this.label3.Text = "Node Locations:";
+            // 
+            // NodeLocations
+            // 
+            this.NodeLocations.AutoCompleteCustomSource.AddRange(new string[] {
+            "BothBelowObject",
+            "InputLeftOutputRight"});
+            this.NodeLocations.FormattingEnabled = true;
+            this.NodeLocations.Items.AddRange(new object[] {
+            "InputLeftOutputRight",
+            "BothBelowObject"});
+            this.NodeLocations.Location = new System.Drawing.Point(31, 126);
+            this.NodeLocations.Name = "NodeLocations";
+            this.NodeLocations.Size = new System.Drawing.Size(232, 24);
+            this.NodeLocations.TabIndex = 36;
+            this.NodeLocations.Text = "InputLeftOutputRight";
+            // 
             // MoveNodesToObjectEdgesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 239);
             this.ControlBox = false;
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.NodeLocations);
             this.Controls.Add(this.Notes);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okButton);
@@ -112,5 +140,7 @@
         private System.Windows.Forms.TextBox Notes;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Button okButton;
+        private System.Windows.Forms.Label label3;
+        internal System.Windows.Forms.ComboBox NodeLocations;
     }
 }

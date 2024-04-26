@@ -327,15 +327,15 @@ namespace CreateNodesAndLinksTableData
                                 // if not first look or node locations not equal OutputRight
                                 if (currentLoop != 0 || f.NodeLocations.Text != "OutputRight")
                                 {
-                                    //find angle in radians using Yaw
-                                    double radians;
+                                    //find angle  using Yaw
+                                    double angle;
 
-                                    if (InputLeftOuputRight == false) radians = intellObj.Yaw * Math.PI / 180;
-                                    else if (currentLoop == 0) radians = (intellObj.Yaw + 90) * Math.PI / 180;
-                                    else radians = (intellObj.Yaw - 90) * Math.PI / 180;
+                                    if (InputLeftOuputRight == false) angle = intellObj.Yaw * Math.PI / 180;
+                                    else if (currentLoop == 0) angle = (intellObj.Yaw + 90) * Math.PI / 180;
+                                    else angle = (intellObj.Yaw - 90) * Math.PI / 180;
 
                                     // determine new facility location for node
-                                    var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(radians) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(radians) * nodeOffet));
+                                    var loc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * nodeOffet), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * nodeOffet));
 
                                     // check to see if node already exists
                                     var filterListOfNodesByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.NodeType.Text);
@@ -736,28 +736,46 @@ namespace CreateNodesAndLinksTableData
                         
                         foreach (IIntelligentObject intellObj in filterListOfObjectsByType)
                         {
-                            //find angles using Yaw
-                            double inputAngle = (intellObj.Yaw + 90) * Math.PI / 180;
-                            double outputAngle = (intellObj.Yaw - 90) * Math.PI / 180;
-                            double halfWidth = intellObj.Size.Length / 2;
-                            var inputLoc = new FacilityLocation(intellObj.Location.X + (Math.Cos(inputAngle) * halfWidth), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(inputAngle) * halfWidth));
-                            var outputloc = new FacilityLocation(intellObj.Location.X + (Math.Cos(outputAngle) * halfWidth), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(outputAngle) * halfWidth));
-
-                            //updated input node location
+                            FacilityLocation inputLoc;
+                            FacilityLocation outputLoc;
                             var inputNode = context.ActiveModel.Facility.IntelligentObjects["Input@" + intellObj.ObjectName];
-                            if (inputNode != null)
-                            {
-                                inputNode.Location = inputLoc;
-                            }
-
-                            //updated output node location
                             var outputNode = context.ActiveModel.Facility.IntelligentObjects["Output@" + intellObj.ObjectName];
-                            if (outputNode != null)
+
+                            if (inputNode != null && (outputNode != null))
                             {
-                                outputNode.Location = outputloc;
+
+                                if (f.NodeLocations.Text == "InputLeftOutputRight")
+                                {
+                                    var inputAngle = (intellObj.Yaw + 90) * Math.PI / 180;
+                                    var outputAngle = (intellObj.Yaw - 90) * Math.PI / 180;
+                                    var halfLength = intellObj.Size.Length / 2;
+                                    inputLoc = new FacilityLocation(intellObj.Location.X + (Math.Cos(inputAngle) * halfLength), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(inputAngle) * halfLength));
+                                    outputLoc = new FacilityLocation(intellObj.Location.X + (Math.Cos(outputAngle) * halfLength), intellObj.Location.Y, intellObj.Location.Z + (Math.Sin(outputAngle) * halfLength));
+                                }
+                                else
+                                {
+                                    //find angles using Yaw
+                                    var angle = intellObj.Yaw * Math.PI / 180;
+                                    var halfWidth = intellObj.Size.Width / 2;
+                                    if (Math.Abs(Math.Cos(angle)) < Math.Abs(Math.Sin(angle)))
+                                    {
+                                        inputLoc = new FacilityLocation(inputNode.Location.X + (Math.Cos(angle) * halfWidth), inputNode.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * halfWidth));
+                                        outputLoc = new FacilityLocation(outputNode.Location.X + (Math.Cos(angle) * halfWidth), outputNode.Location.Y, intellObj.Location.Z + (Math.Sin(angle) * halfWidth));
+                                    }
+                                    else
+                                    {
+                                        inputLoc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * halfWidth), inputNode.Location.Y, inputNode.Location.Z + (Math.Sin(angle) * halfWidth));
+                                        outputLoc = new FacilityLocation(intellObj.Location.X + (Math.Cos(angle) * halfWidth), outputNode.Location.Y, outputNode.Location.Z + (Math.Sin(angle) * halfWidth));
+                                    }
+                                }
+
+                                //updated input node location
+                                inputNode.Location = inputLoc;
+
+                                //updated output node location
+                                outputNode.Location = outputLoc;
                             }
-                        }
-                        
+                        }                        
                     });
                     MessageBox.Show("Move Nodes To Object Edges Completed", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 }               
