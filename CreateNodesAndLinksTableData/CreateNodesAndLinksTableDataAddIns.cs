@@ -104,8 +104,6 @@ namespace CreateNodesAndLinksTableData
                 {
                     tbl = context.ActiveModel.Tables.Create("CreateNodesAndLinks");
                     var s = tbl.Columns.AddStringColumn("ObjectType", "Rack");
-                    s = tbl.Columns.AddStringColumn("ObjectPropertyName", "Filter");
-                    s = tbl.Columns.AddStringColumn("ObjectPropertyValue", "");
                     s = tbl.Columns.AddStringColumn("NodeType", "RackNode");
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
                     var r = tbl.Columns.AddRealColumn("NodeOffset", 1.5);
@@ -132,8 +130,6 @@ namespace CreateNodesAndLinksTableData
                 {
                     tbl = context.ActiveModel.Tables.Create("AddNodesLinksVerticesToTables");
                     var s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
-                    s = tbl.Columns.AddStringColumn("LinkPropertyName", "Filter");
-                    s = tbl.Columns.AddStringColumn("LinkPropertyValue", "");
                     var t = tbl.Columns.AddTableReferenceColumn("NodesTable");
                     t.DefaultString = "Nodes";
                     s = tbl.Columns.AddStringColumn("NodeColumnName", "Node");
@@ -246,15 +242,13 @@ namespace CreateNodesAndLinksTableData
                 if (tbl.Rows.Count > 1)
                 {
                     MessageBox.Show("CreateNodesAndLinks Table Contains More Than One Row.   Only the first row will be used.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }                        
+                }
                     
                 var f = new CreateNodesAndLinksForm();
                 var row = tbl.Rows[0];
                 f.NodeOffset.Text = row.Properties["NodeOffset"].Value;
                 f.UseExistingNodeOffset.Text = row.Properties["UseExistingNodeOffset"].Value;
                 f.ObjectType.Text = row.Properties["ObjectType"].Value;
-                f.ObjectPropertyName.Text = row.Properties["ObjectPropertyName"].Value;
-                f.ObjectPropertyValue.Text = row.Properties["ObjectPropertyValue"].Value;
                 f.NodeType.Text = row.Properties["NodeType"].Value;
                 f.LinkType.Text = row.Properties["LinkType"].Value;
                 f.NodeLocations.Text = row.Properties["NodeLocations"].Value;
@@ -265,37 +259,14 @@ namespace CreateNodesAndLinksTableData
                 {
                     context.ActiveModel.BulkUpdate(model =>
                     {                        
-                        var filterListOfObjectsByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.ObjectType.Text).ToList();
+                        var filterListOfObjects = context.ActiveModelSelectedObjects.Where(r => String.IsNullOrEmpty(f.ObjectType.Text) || r.TypeName == f.ObjectType.Text).ToList();
 
-                        if (filterListOfObjectsByType.Count == 0)
+                        if (filterListOfObjects.Count == 0)
                         {
                             MessageBox.Show("No Objects For Type Found", "No Objects For Type Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
-                        var filterListOfObjects = new List<IIntelligentObject>();
                         
-                        // If properyt defined
-                        if (f.ObjectPropertyName.Text.Length > 0)
-                        {
-                            IIntelligentObject intellObj = filterListOfObjectsByType[0];
-                            var prop = intellObj.Properties[f.ObjectPropertyName.Text];
-                            if (prop == null)
-                            {
-                                MessageBox.Show("Property Name Not Found On Object", "Property Name Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-                            if (f.ObjectPropertyValue.Text.Length == 0)
-                            {
-                                MessageBox.Show("Property Value Not Provided", "Property Value Not Provided", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-                            filterListOfObjects = filterListOfObjectsByType.Where(r => r.Properties[f.ObjectPropertyName.Text].Value == f.ObjectPropertyValue.Text).ToList();
-                        }
-                        else
-                        {
-                            filterListOfObjects = filterListOfObjectsByType.ToList();
-
-                        }
                         var sortedListOfObjects = new List<IIntelligentObject>();
                         if (f.Direction.Text == "LeftToRight") sortedListOfObjects = filterListOfObjects.OrderBy(z => z.Location.Z).ThenBy(y => y.Location.Y).ThenBy(x => x.Location.X).ToList();
                         else if (f.Direction.Text == "RightToLeft") sortedListOfObjects = filterListOfObjects.OrderBy(z => z.Location.Z).ThenBy(y => y.Location.Y).ThenBy(x => (x.Location.X * -1)).ToList();
@@ -496,8 +467,6 @@ namespace CreateNodesAndLinksTableData
                 var f = new AddNodesAndLinksToTablesForm();
                 var row = tbl.Rows[0];
                 f.LinkType.Text = row.Properties["LinkType"].Value;
-                f.LinkPropertyName.Text = row.Properties["LinkPropertyName"].Value;
-                f.LinkPropertyValue.Text = row.Properties["LinkPropertyValue"].Value;
                 f.NodesTable.Text = row.Properties["NodesTable"].Value;
                 f.NodeColumnName.Text = row.Properties["NodeColumnName"].Value;
                 f.NodeTypeColumnName.Text = row.Properties["NodeTypeColumnName"].Value;
@@ -521,37 +490,14 @@ namespace CreateNodesAndLinksTableData
                 if (f.OkButtonSelected == true)
                 {
                     context.ActiveModel.BulkUpdate(model =>
-                    {                      
-                        var filterListOfLinksByType = context.ActiveModel.Facility.IntelligentObjects.Where(r => r.TypeName == f.LinkType.Text).ToList();
-                        if (filterListOfLinksByType.Count == 0)
+                    {
+                        var filterListOfLinks = context.ActiveModelSelectedObjects.Where(r => String.IsNullOrEmpty(f.LinkType.Text) || r.TypeName == f.LinkType.Text).ToList();
+
+                        if (filterListOfLinks.Count == 0)
                         {
                             MessageBox.Show("No Links For Type Found", "No Links For Type Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
-                        }
-
-                        var filterListOfLinks = new List<IIntelligentObject>();
-                        // If properyt defined
-                        if (f.LinkPropertyName.Text.Length > 0)
-                        {
-                            IIntelligentObject intellObj = filterListOfLinksByType[0];
-                            var prop = intellObj.Properties[f.LinkPropertyName.Text];
-                            if (prop == null)
-                            {
-                                MessageBox.Show("Property Name Not Found On Object", "Property Name Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-                            if (f.LinkPropertyValue.Text.Length == 0)
-                            {
-                                MessageBox.Show("Property Value Not Provided", "Property Value Not Provided", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-                            filterListOfLinks = filterListOfLinksByType.Where(r => r.Properties[f.LinkPropertyName.Text].Value == f.LinkPropertyValue.Text).ToList();
-                        }
-                        else
-                        {
-                            filterListOfLinks = filterListOfLinksByType.ToList();
-
-                        }
+                        }                        
                         
                         var nodesTable = context.ActiveModel.Tables[f.NodesTable.Text];
                         var linksTable = context.ActiveModel.Tables[f.LinksTable.Text];
