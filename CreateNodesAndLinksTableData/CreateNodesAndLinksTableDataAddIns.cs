@@ -103,7 +103,7 @@ namespace CreateNodesAndLinksTableData
                 else
                 {
                     tbl = context.ActiveModel.Tables.Create("CreateNodesAndLinks");
-                    var s = tbl.Columns.AddStringColumn("ObjectType", "Rack");
+                    var s = tbl.Columns.AddStringColumn("ObjectType", String.Empty);
                     s = tbl.Columns.AddStringColumn("NodeType", "RackNode");
                     s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
                     var r = tbl.Columns.AddRealColumn("NodeOffset", 1.5);
@@ -129,7 +129,7 @@ namespace CreateNodesAndLinksTableData
                 else
                 {
                     tbl = context.ActiveModel.Tables.Create("AddNodesLinksVerticesToTables");
-                    var s = tbl.Columns.AddStringColumn("LinkType", "RackPath");
+                    var s = tbl.Columns.AddStringColumn("LinkType", String.Empty);
                     var t = tbl.Columns.AddTableReferenceColumn("NodesTable");
                     t.DefaultString = "Nodes";
                     s = tbl.Columns.AddStringColumn("NodeColumnName", "Node");
@@ -258,7 +258,7 @@ namespace CreateNodesAndLinksTableData
                 if (f.OkButtonSelected == true)
                 {
                     context.ActiveModel.BulkUpdate(model =>
-                    {                        
+                    {
                         var filterListOfObjects = context.ActiveModelSelectedObjects.Where(r => String.IsNullOrEmpty(f.ObjectType.Text) || r.TypeName == f.ObjectType.Text).ToList();
 
                         if (filterListOfObjects.Count == 0)
@@ -491,7 +491,7 @@ namespace CreateNodesAndLinksTableData
                 {
                     context.ActiveModel.BulkUpdate(model =>
                     {
-                        var filterListOfLinks = context.ActiveModelSelectedObjects.Where(r => String.IsNullOrEmpty(f.LinkType.Text) || r.TypeName == f.LinkType.Text).ToList();
+                        var filterListOfLinks = context.ActiveModelSelectedObjects.Where(r => r is ILinkObject && (String.IsNullOrEmpty(f.LinkType.Text) || r.TypeName == f.LinkType.Text)).ToList();
 
                         if (filterListOfLinks.Count == 0)
                         {
